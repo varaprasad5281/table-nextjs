@@ -13,7 +13,8 @@ import {
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const [statusFilter, setStatusFilter] = useState("");
+
   const orders = [
     {
       orderID: "ORD001",
@@ -73,19 +74,45 @@ export default function Home() {
     },
   ];
 
-  const filteredOrders = orders.filter(order =>
-    order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOrders = orders.filter(
+    (order) =>
+      order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (statusFilter === "" || order.orderStatus === statusFilter)
   );
+
+  const orderStatuses = [
+    "All",
+    "Shipped",
+    "Processing",
+    "Cancelled",
+    "Delivered",
+  ];
 
   return (
     <main className="mt-[50px] max-w-5xl m-auto">
-      <input
-        type="text"
-        placeholder="Search by customer name"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded"
-      />
+      <div className="flex justify-between">
+        <input
+          type="text"
+          placeholder="Search by customer name"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mb-4 p-2 border border-gray-300 rounded"
+        />
+        <div className="mb-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          >
+            {orderStatuses.map((status) => (
+              <option key={status} value={status === "All" ? "" : status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <Table>
         <TableCaption>A list of your recent orders.</TableCaption>
         <TableHeader>
@@ -110,7 +137,9 @@ export default function Home() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={4} className="font-bold">Total</TableCell>
+            <TableCell colSpan={4} className="font-bold">
+              Total
+            </TableCell>
             <TableCell className="font-bold">
               {filteredOrders
                 .reduce((total, order) => {
